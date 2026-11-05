@@ -1,0 +1,56 @@
+﻿{% extends "base.html" %}
+{% block contenu %}
+<h2>Salles</h2>
+{% for salle in salles %}
+<article>
+<form method="post" action="/salles/{{ salle.id }}/modifier">
+<label>Nom <input name="nom" value="{{ salle.nom }}" required></label>
+<label>Capacité <input name="capacite" type="number" min="1" value="{{ salle.capacite }}" required></label>
+<label><input name="projecteur" type="checkbox" {% if salle.projecteur %}checked{% endif %}>Projecteur</label>
+<button>Enregistrer</button>
+</form>
+<form method="post" action="/salles/{{ salle.id }}/supprimer" onsubmit="return confirm('Supprimer cette salle et toutes ses réservations ?')"><button>Supprimer la salle</button></form>
+</article>
+{% else %}<p>Aucune salle.</p>{% endfor %}
+<h2>Ajouter une salle</h2>
+<form method="post" action="/salles">
+<label>Nom <input name="nom" required></label>
+<label>Capacité <input name="capacite" type="number" min="1" required></label>
+<label><input name="projecteur" type="checkbox">Projecteur</label><button>Ajouter</button>
+</form>
+<h2>Réserver une salle</h2>
+{% if salles %}
+<p>Entre 8 h et 20 h, pour une durée de 30 minutes à 4 heures.</p>
+<form method="post" action="/reservations">
+<label>Salle <select name="salle_id">{% for salle in salles %}<option value="{{ salle.id }}">{{ salle.nom }} ({{ salle.capacite }} places)</option>{% endfor %}</select></label>
+<label>Personne <input name="personne" required></label>
+<label>Date <input name="date" type="date" required></label>
+<label>Début <input name="debut" type="time" min="08:00" max="20:00" required></label>
+<label>Fin <input name="fin" type="time" min="08:00" max="20:00" required></label>
+<label>Participants <input name="participants" type="number" min="1" required></label>
+<button>Réserver</button>
+</form>
+{% else %}<p>Ajoutez une salle pour pouvoir réserver.</p>{% endif %}
+<h2>Planning hebdomadaire</h2>
+{% if salle_selectionnee %}
+<form method="get" action="/">
+<label>Salle <select name="salle_id">{% for salle in salles %}<option value="{{ salle.id }}" {% if salle.id == salle_selectionnee.id %}selected{% endif %}>{{ salle.nom }}</option>{% endfor %}</select></label>
+<label>Date dans la semaine <input type="date" name="semaine" value="{{ lundi.isoformat() }}" required></label>
+<button>Afficher</button>
+</form>
+<p><a href="{{ url_for('accueil', salle_id=salle_selectionnee.id, semaine=precedente.isoformat()) }}">Semaine précédente</a> · <a href="{{ url_for('accueil', salle_id=salle_selectionnee.id, semaine=suivante.isoformat()) }}">Semaine suivante</a></p>
+<h3>{{ salle_selectionnee.nom }} — du {{ jours[0].strftime('%d/%m/%Y') }} au {{ jours[6].strftime('%d/%m/%Y') }}</h3>
+<table><thead><tr><th>Jour</th><th>Réservations</th></tr></thead><tbody>
+{% set noms_jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'] %}
+{% for jour in jours %}
+<tr><th>{{ noms_jours[loop.index0] }} {{ jour.strftime('%d/%m') }}</th><td>
+{% for r in reservations if r.date == jour.isoformat() %}
+<div>{{ r.debut }}–{{ r.fin }} : {{ r.personne }} — {{ r.participants }} participant(s)
+<form style="display:inline" method="post" action="/reservations/{{ r.id }}/annuler"><button>Annuler</button></form></div>
+{% else %}Libre{% endfor %}
+</td></tr>
+{% endfor %}
+</tbody></table>
+{% else %}<p>Aucune salle à afficher.</p>{% endif %}
+{% endblock %}
+
