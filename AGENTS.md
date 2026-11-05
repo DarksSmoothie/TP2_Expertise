@@ -25,10 +25,7 @@ Tables et exemples dans `base.sql`. `data.db` se crée au premier lancement. Sup
 - Ajouter ou mettre à jour les tests à chaque fonctionnalité, puis lancer `pytest`.
 - Ne pas ajouter d'autre dépendance sans le demander.
 - Ne faire `git push` que si le binôme le demande.
-
-## À vous d'ajouter
-<!-- Ajoutez ici ce que vous voulez que l'agent respecte. Par exemple :
 - Ne rien ajouter qui n'est pas demandé.
 - Mettre les règles dans un fichier `regles.py`, sans framework.
 - Utiliser une base séparée pour les tests.
--->
+
