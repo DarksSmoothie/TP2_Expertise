@@ -15,7 +15,32 @@ def valider_salle(nom, capacite):
     return nom, entier_positif(capacite, "La capacité")
 
 
-def valider_reservation(personne, jour, debut, fin, participants, capacite, reservations):
+def valider_type_local(type_local):
+    type_local = type_local.strip()
+    if not type_local:
+        raise ValueError("Le type de local est obligatoire.")
+    return type_local
+
+
+def dates_hebdomadaires(jour, nombre_semaines):
+    from datetime import date, timedelta
+
+    nombre = entier_positif(nombre_semaines, "Le nombre de semaines")
+    try:
+        premier_jour = date.fromisoformat(jour)
+        # Vérifier la dernière date avant de construire la série.
+        premier_jour + timedelta(weeks=nombre - 1)
+    except (ValueError, TypeError, OverflowError):
+        raise ValueError("La date ou le nombre de semaines est invalide.") from None
+    return [(premier_jour + timedelta(weeks=i)).isoformat() for i in range(nombre)]
+
+
+def cle_personne(personne):
+    return " ".join(personne.split()).casefold()
+
+
+def valider_reservation(personne, jour, debut, fin, participants, capacite, reservations,
+                       reservations_personne=()):
     from datetime import date, datetime
 
     personne = personne.strip()
@@ -39,6 +64,10 @@ def valider_reservation(personne, jour, debut, fin, participants, capacite, rese
         raise ValueError("Le nombre de participants dépasse la capacité de la salle.")
     if any(r["date"] == jour and debut < r["fin"] and fin > r["debut"] for r in reservations):
         raise ValueError("Ce créneau chevauche une réservation existante.")
+    if any(cle_personne(r["personne"]) == cle_personne(personne)
+           and r["date"] == jour and debut < r["fin"] and fin > r["debut"]
+           for r in reservations_personne):
+        raise ValueError("Cette personne a déjà une réservation sur ce créneau.")
     return personne, jour, debut, fin, participants
 
 

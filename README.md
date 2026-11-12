@@ -24,7 +24,7 @@ Dans un bâtiment universitaire, les salles se réservent par mail auprès du se
 
 | Objet | Ce qu’on enregistre |
 |---|---|
-| **Salle** | nom, capacité, présence d’un projecteur |
+| **Salle** | nom, type de local, capacité, présence d’un projecteur |
 | **Réservation** | salle, personne, date, heure de début et de fin, nombre de participants |
 
 ## Ce que l’application doit faire
@@ -37,10 +37,17 @@ Dans un bâtiment universitaire, les salles se réservent par mail auprès du se
 ## Les règles
 
 - Deux réservations d’une même salle ne se chevauchent pas. Finir à 12 h et commencer à 12 h est autorisé.
+- Une personne ne peut pas avoir deux réservations qui se chevauchent, même dans des salles différentes. Les noms sont comparés sans tenir compte de la casse ni des espaces superflus.
 - Le nombre de participants ne dépasse pas la capacité de la salle.
 - Une réservation a lieu entre 8 h et 20 h et dure de 30 min à 4 h.
 - Supprimer une salle supprime ses réservations.
 - Il n’y a pas d’authentification. La semaine va du lundi au dimanche.
+
+## Évolutions B1, B2 et B3
+
+- **B1** : les conflits sont vérifiés pour la salle et pour la personne.
+- **B2** : le type de local est un texte libre obligatoire dans les formulaires de création et de modification (par exemple « laboratoire » ou « auditoire »). Les locaux existants reçoivent le type « Salle ».
+- **B3** : le formulaire de réservation propose un nombre de semaines. La valeur 1 crée une réservation unique ; la valeur 3 crée trois occurrences espacées de sept jours, première date comprise. Le local, la personne, les horaires et le nombre de participants restent identiques. Si une occurrence enfreint une règle, toute la demande est refusée avec la date concernée. Le bouton Annuler supprime uniquement l’occurrence choisie.
 
 ## Pour vérifier
 
@@ -143,11 +150,11 @@ Vous travaillez dans `app.py`. `base.py` ouvre la base : vous n'avez pas besoin 
 
 ## La base
 
-`base.sql` contient les tables et des exemples. `data.db` se crée au premier lancement. Pour repartir de zéro, ou après un changement de `base.sql`, supprimez `data.db`. [Documentation de `sqlite3`](https://docs.python.org/3/library/sqlite3.html).
+`base.sql` contient les tables et des exemples. `data.db` se crée au premier lancement. L’ajout du type de local est migré automatiquement à l’ouverture, sans supprimer les données existantes. Supprimer `data.db` permet de repartir de zéro et efface les réservations. [Documentation de `sqlite3`](https://docs.python.org/3/library/sqlite3.html).
 
 | Table | Colonnes |
 |---|---|
-| `salles` | `id`, `nom`, `capacite`, `projecteur` |
+| `salles` | `id`, `nom`, `type_local`, `capacite`, `projecteur` |
 | `reservations` | `id`, `salle_id`, `personne`, `date`, `debut`, `fin`, `participants` |
 
 `projecteur` vaut 1 ou 0. Les dates sont au format `2026-11-09` et les heures au format `10:00`.

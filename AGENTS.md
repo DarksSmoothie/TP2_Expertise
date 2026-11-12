@@ -11,10 +11,13 @@ Python, SQLite, pytest. Framework : Flask (`code-flask`) ou Streamlit (`code-str
 - Lancer les tests : `pytest` dans le dossier de code
 
 ## Base de données
-Tables et exemples dans `base.sql`. `data.db` se crée au premier lancement. Supprimer `data.db` après un changement de `base.sql`.
+Tables et exemples dans `base.sql`. `data.db` se crée au premier lancement. L'ajout de `type_local` est migré automatiquement dans `base.py`, sans effacer les données.
 
 ## Règles métier
 - Deux réservations d'une même salle ne se chevauchent pas. Finir à 12 h et commencer à 12 h est autorisé.
+- Une personne ne peut pas avoir de réservations qui se chevauchent, même dans des salles différentes. Comparer les noms sans tenir compte de la casse ni des espaces superflus.
+- Chaque salle a un type de local en texte libre, non vide.
+- Les réservations peuvent être répétées chaque semaine : le nombre de semaines inclut la première occurrence. Un conflit annule la création de toute la série. L'annulation supprime uniquement l'occurrence choisie.
 - Le nombre de participants ne dépasse pas la capacité de la salle.
 - Une réservation a lieu entre 8 h et 20 h et dure de 30 min à 4 h.
 - Supprimer une salle supprime ses réservations.
